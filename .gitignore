@@ -1,13 +1,25 @@
 # ignore map, miou, datasets
-map_out/
+map_out/.temp_files/
+map_out/detection-results/
+map_out/ground-truth/
+map_out/images-optional/
 miou_out/
 dataset/
 datasets/
 Medical_Datasets/
 
-model_data/
+model_data/vgg16-397923af.pth
 *.jpg
 常见问题汇总.md
+readm.md
+*.tar
+
+
+
+logs/
+test-dataset/
+wget-log
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

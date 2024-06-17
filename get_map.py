@@ -8,6 +8,10 @@ from ssd import SSD
 from utils.utils import get_classes
 from utils.utils_map import get_coco_map, get_map
 
+import cv2
+import numpy as np
+from PIL import ImageDraw
+
 if __name__ == "__main__":
     '''
     Recall和Precision不像AP是一个面积的概念，在门限值不同时，网络的Recall和Precision值是不同的。
@@ -24,7 +28,7 @@ if __name__ == "__main__":
     #   map_mode为3代表仅仅计算VOC_map。
     #   map_mode为4代表利用COCO工具箱计算当前数据集的0.50:0.95map。需要获得预测结果、获得真实框后并安装pycocotools才行
     #-------------------------------------------------------------------------------------------------------------------#
-    map_mode        = 0
+    map_mode        = 3
     #-------------------------------------------------------#
     #   此处的classes_path用于指定需要测量VOC_map的类别
     #   一般情况下与训练和预测所用的classes_path一致即可
@@ -43,14 +47,18 @@ if __name__ == "__main__":
     #   指向VOC数据集所在的文件夹
     #   默认指向根目录下的VOC数据集
     #-------------------------------------------------------#
-    VOCdevkit_path  = 'VOCdevkit'
+    VOCdevkit_path  = 'test-dataset/VOCdevkit'
     #-------------------------------------------------------#
     #   结果输出的文件夹，默认为map_out
     #-------------------------------------------------------#
     map_out_path    = 'map_out'
 
-    image_ids = open(os.path.join(VOCdevkit_path, "VOC2007/ImageSets/Main/test.txt")).read().strip().split()
+    # 用于指定要不要一张一张生成带预测标签和真实标签框的图片
+    show_animation  = False
 
+    image_ids = open(os.path.join(VOCdevkit_path, "VOC2007/ImageSets/Main/test.txt")).read().strip().split()
+    # image_ids = open(os.path.join(VOCdevkit_path, "VOC2007/ImageSets/Main/val.txt")).read().strip().split()
+    
     if not os.path.exists(map_out_path):
         os.makedirs(map_out_path)
     if not os.path.exists(os.path.join(map_out_path, 'ground-truth')):
@@ -104,10 +112,50 @@ if __name__ == "__main__":
 
     if map_mode == 0 or map_mode == 3:
         print("Get map.")
-        get_map(MINOVERLAP, True, path = map_out_path)
+        get_map(MINOVERLAP, True, path = map_out_path, show_animation = show_animation)
         print("Get map done.")
 
     if map_mode == 4:
         print("Get map.")
         get_coco_map(class_names = class_names, path = map_out_path)
         print("Get map done.")
+
+
+
+        # 遍历测试集中的所有图片
+        for image_id in image_ids:
+            # 读取图片
+            image_path = os.path.join(VOCdevkit_path, "VOC2007/JPEGImages", image_id + ".jpg")
+            image = Image.open(image_path)
+            image = np.array(image)  # 转换为numpy数组
+
+            # 使用模型进行预测
+            predictions = ssd.predict(image)
+            
+            # 绘制预测框
+            for pred in predictions:
+                if pred['confidence'] > 0.5:  # 只绘制置信度大于0.5的预测框
+                    top_left = (pred['x_min'], pred['y_min'])
+                    bottom_right = (pred['x_max'], pred['y_max'])
+                    cv2.rectangle(image, top_left, bottom_right, (0, 255, 0), 2)  # 绿色框表示预测框
+
+            # 读取真实标注
+            ground_truth_path = os.path.join(VOCdevkit_path, "VOC2007/Annotations", image_id + ".xml")
+            tree = ET.parse(ground_truth_path)
+            root = tree.getroot()
+
+            # 绘制真实框
+            for obj in root.findall('object'):
+                bndbox = obj.find('bndbox')
+                left = bndbox.find('xmin').text
+                top = bndbox.find('ymin').text
+                right = bndbox.find('xmax').text
+                bottom = bndbox.find('ymax').text
+                top_left = (int(left), int(top))
+                bottom_right = (int(right), int(bottom))
+                cv2.rectangle(image, top_left, bottom_right, (255, 0, 0), 2)  # 红色框表示真实框
+
+            # 保存图片
+            save_path = os.path.join(map_out_path, "images-optional", image_id + ".jpg")
+            cv2.imwrite(save_path, image)
+

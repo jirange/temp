@@ -42,8 +42,8 @@ if __name__ == "__main__":
     #   dir_save_path指定了检测完图片的保存路径
     #   dir_origin_path和dir_save_path仅在mode='dir_predict'时有效
     #-------------------------------------------------------------------------#
-    dir_origin_path = "img/"
-    dir_save_path   = "img_out/"
+    dir_origin_path = "test-dataset/VOCdevkit/VOC2007/JPEGImages/"
+    dir_save_path   = "test-result/VOCdevkit/VOC2007/JPEGImages/"
 
     if mode == "predict":
         '''
@@ -65,7 +65,9 @@ if __name__ == "__main__":
                 continue
             else:
                 r_image = ssd.detect_image(image)
-                r_image.show()
+                # r_image.show()
+                r_image.save("/dataset/vsitongwu/LJC/temp/img---------------------------=hello==================.jpg")
+                print("save(/dataset/vsitongwu/LJC/temp/imghello==================.jpg)")
 
     elif mode == "video":
         capture=cv2.VideoCapture(video_path)

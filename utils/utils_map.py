@@ -232,7 +232,7 @@ def draw_plot_func(dictionary, n_classes, window_title, plot_title, x_label, out
             if i == (len(sorted_values)-1): # largest bar
                 adjust_axes(r, t, fig, axes)
     # set window title
-    fig.canvas.set_window_title(window_title)
+    fig.canvas.manager.set_window_title(window_title)
     # write classes in y axis
     tick_font_size = 12
     plt.yticks(range(n_classes), sorted_keys, fontsize=tick_font_size)
@@ -267,20 +267,21 @@ def draw_plot_func(dictionary, n_classes, window_title, plot_title, x_label, out
     # close the plot
     plt.close()
 
-def get_map(MINOVERLAP, draw_plot, path = './map_out'):
+def get_map(MINOVERLAP, draw_plot, path = './map_out', show_animation = False):
     GT_PATH             = os.path.join(path, 'ground-truth')
     DR_PATH             = os.path.join(path, 'detection-results')
     IMG_PATH            = os.path.join(path, 'images-optional')
     TEMP_FILES_PATH     = os.path.join(path, '.temp_files')
     RESULTS_FILES_PATH  = os.path.join(path, 'results')
 
-    show_animation = True
-    if os.path.exists(IMG_PATH): 
-        for dirpath, dirnames, files in os.walk(IMG_PATH):
-            if not files:
-                show_animation = False
-    else:
-        show_animation = False
+    # todo 一张张生成图片太慢了
+    # show_animation = True
+    # if os.path.exists(IMG_PATH): 
+    #     for dirpath, dirnames, files in os.walk(IMG_PATH):
+    #         if not files:
+    #             show_animation = False
+    # else:
+    #     show_animation = False
 
     if not os.path.exists(TEMP_FILES_PATH):
         os.makedirs(TEMP_FILES_PATH)
@@ -533,8 +534,8 @@ def get_map(MINOVERLAP, draw_plot, path = './map_out'):
                     cv2.rectangle(img_cumulative,(bb[0],bb[1]),(bb[2],bb[3]),color,2)
                     cv2.putText(img_cumulative, class_name, (bb[0],bb[1] - 5), font, 0.6, color, 1, cv2.LINE_AA)
 
-                    cv2.imshow("Animation", img)
-                    cv2.waitKey(20) 
+                    # cv2.imshow("Animation", img)  todo
+                    # cv2.waitKey(20) 
                     output_img_path = RESULTS_FILES_PATH + "/images/detections_one_by_one/" + class_name + "_detection" + str(idx) + ".jpg"
                     cv2.imwrite(output_img_path, img)
                     cv2.imwrite(img_cumulative_path, img_cumulative)
@@ -593,7 +594,7 @@ def get_map(MINOVERLAP, draw_plot, path = './map_out'):
                 plt.fill_between(area_under_curve_x, 0, area_under_curve_y, alpha=0.2, edgecolor='r')
 
                 fig = plt.gcf()
-                fig.canvas.set_window_title('AP ' + class_name)
+                fig.canvas.manager.set_window_title('AP ' + class_name)
 
                 plt.title('class: ' + text)
                 plt.xlabel('Recall')
