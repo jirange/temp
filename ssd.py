@@ -34,7 +34,7 @@ class SSD(object):
         #--------------------------------------------------------------------------#
         # "model_path"        : 'model_data/ssd_weights.pth',
         # logs/ep059-loss3.880-val_loss4.331.pth
-        "model_path"        : 'logs/ep078-loss2.907-val_loss3.995.pth',
+        "model_path"        : 'logs/ep150-loss2.503-val_loss4.055.pth',
         "classes_path"      : 'model_data/voc_classes.txt',
         #---------------------------------------------------------------------#
         #   用于预测的图像大小，和train时使用同一个即可
@@ -66,7 +66,7 @@ class SSD(object):
         #   是否使用Cuda
         #   没有GPU可以设置成False
         #-------------------------------#
-        "cuda"              : True,
+        "cuda"              : False,
     }
 
     @classmethod
