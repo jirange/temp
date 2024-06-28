@@ -14,7 +14,7 @@ model_data/vgg16-397923af.pth
 readm.md
 *.tar
 
-
+*pth
 
 logs/
 test-dataset/
